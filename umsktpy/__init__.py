@@ -23,6 +23,15 @@ def find_umskt_executable():
         raise OSError("Unsupported operating system. The 'umskt' executable is not available for this platform.")
 
     umskt_path = os.path.join(current_dir, umskt_name)
+    if os_name == "Linux":
+        command = ["chmod", "+x", umskt_path]
+        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    if os_name == "FreeBSD":
+        command = ["chmod", "+x", umskt_path]
+        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    if os_name == "Darwin":
+        command = ["chmod", "+x", umskt_path]
+        result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
     if not os.path.exists(umskt_path):
         raise FileNotFoundError(f"The '{umskt_name}' executable was not found in the library directory for your operating system.")
