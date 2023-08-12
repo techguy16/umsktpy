@@ -1,0 +1,40 @@
+name: Build and Upload - macOS
+
+on:
+  push:
+    branches:
+      - nobridge
+
+jobs:
+  build:
+    runs-on: macOS-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install PyInstaller
+      run: |
+        pip install pyinstaller
+
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --onefile main.py
+        mv dist/main dist/umsktpy
+        cp leys.json dist/keys.json
+
+    - name: Run umsktpy
+      run: |
+        cd dist
+        ./umsktpy
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: umsktpy-macos
+        path: dist
