@@ -1,0 +1,40 @@
+name: Build and Upload
+
+on:
+  push:
+    branches:
+      - nobridge
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install PyInstaller
+      run: |
+        pip install pyinstaller
+
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --onefile main.py
+        Rename-Item -Path dist\main.exe -NewName umsktpy.exe
+        Copy-Item keys.json dist\keys.json
+
+    - name: Run umsktpy.exe
+      run: |
+        cd dist
+        .\umsktpy.exe
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: umsktpy-win64
+        path: dist
