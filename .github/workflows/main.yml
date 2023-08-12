@@ -1,4 +1,4 @@
-name: Build and Upload
+name: Build and Upload - Windows
 
 on:
   push:
