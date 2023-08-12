@@ -26,6 +26,7 @@ jobs:
       run: |
         pyinstaller --onefile main.py
         mv dist/main dist/umsktpy
+        cp keys.json dist/keys.json
 
     - name: Run umsktpy
       run: |
