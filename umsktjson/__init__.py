@@ -2,10 +2,7 @@ import hashlib
 import random
 import secrets
 import json
-import os
-import sys
 
-base_path = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
 KCHARS = "BCDFGHJKMPQRTVWXY2346789"
 
 def int_to_bytes(n, l=None):
@@ -36,8 +33,7 @@ def decode_pkey(k):
         out += KCHARS.index(c)
     
     return out
-
-
+    
 def inverse_mod(k, p):
     return pow(k, -1, p)
 
@@ -67,11 +63,27 @@ def scalar_mult(k, P, p, a):
         P = add_points(P, P, p, a)
     return R
 
-def generate_key(keysfile="keys.json", bink="2E", pid=756):
-    with open(keysfile) as json_file:
-        binkdata = json.load(json_file)
+def generate_key(keysfile="keys.json", bink="2E", pid=756, verbose=False):
+    if verbose == True:
+        print("Loading internal keys file")
+        
+    try:
+        with open(keysfile) as json_file:
+            binkdata = json.load(json_file)
+            if verbose:
+                print("Loaded internal keys file successfully")
+    except FileNotFoundError:
+        print("The specified file was not found.")
+    except json.JSONDecodeError:
+        print("There was an error decoding the JSON content.")
+    except Exception as e:
+        print("An unexpected error occurred:", e)
     
     bink_data = binkdata["BINK"][bink]
+    if verbose:
+        print("-----------------------------------------------------------")
+        print("Loaded the following elliptic curve parameters: BINK[" + bink + "]")
+        print("-----------------------------------------------------------")
         
     key_data = {
         "p": int(bink_data["p"]),
@@ -88,16 +100,29 @@ def generate_key(keysfile="keys.json", bink="2E", pid=756):
         "n": int(bink_data["n"]),
         "priv": int(bink_data["priv"])
     }
-
+    
+    if verbose == True:
+        print("P: ", bink_data["p"])
+        print("a: ", bink_data["a"])
+        print("b: ", bink_data["b"])
+        print("Gx: ", bink_data["g"]["x"])
+        print("Gy: ", bink_data["g"]["y"])
+        print("Kx: ", bink_data["pub"]["x"])
+        print("Ky: ", bink_data["pub"]["y"])
+        print("n: ", bink_data["n"])
+        print("k: ", bink_data["priv"])
+        
     p = key_data["p"]
     a = key_data["a"]
     b = key_data["b"]
-    B = tuple(key_data["g"])
+    B = key_data["g"]
     K = tuple(key_data["pub"])
     order = key_data["n"]
     private_key = -key_data["priv"] % order
 
     pid = int(str(pid) + "696969")
+    if verbose:
+        print("\n> Product ID: PPPPP-" + str(pid)[0:3] + "-" + str(pid)[3:] + "-23xxx\n")
     KCHARS = "BCDFGHJKMPQRTVWXY2346789"
 
     pid <<= 1
@@ -116,37 +141,49 @@ def generate_key(keysfile="keys.json", bink="2E", pid=756):
 
         if raw_pkey >> 96 < 0x40000:
             break
-        
-    return encode_pkey(raw_pkey)
+    
+    if verbose:
+        key = encode_pkey(raw_pkey) + "\n\nSuccess count:1/1"
+    else:
+        key = encode_pkey(raw_pkey)
+    return key
+    
+    
 
-def validate_key(keysfile=os.path.join(base_path, 'keys.json'), pkey="", bink="2E", channelid=640):
+def validate_key(pkey, pid, bink="2E", keysfile='keys.json'):
     with open(keysfile) as json_file:
         binkdata = json.load(json_file)
     
     bink_data = binkdata["BINK"][bink]
     
-    pid = int(str(channelid) + "696969")
-
+    B = tuple(bink_data["g"])
+    K = tuple(bink_data["pub"])
+    
     raw_pkey = decode_pkey(pkey)
+
     kpid = (raw_pkey & 0x7fffffff) >> 1
     verify = (kpid // 1000000) == ((pid >> 1) // 1000000)
 
     if verify:
-        K = tuple(int(bink_data["pub"]["x"]),int(bink_data["pub"]["y"]))
-        B = tuple(int(bink_data["g"]["x"]),int(bink_data["g"]["x"]))
-        
         h = (raw_pkey >> 31) & 0xfffffff
         s = (raw_pkey >> 59) & 0x7ffffffffffffff
 
-        x = h * K + s * B
-        y = (x * (x * x + 1)**0.5)**0.5
+        r = h * K + s * B
+        x, y = r.xy()
 
         md = hashlib.sha1(int_to_bytes(kpid << 1, 4) + int_to_bytes(x, 48) + int_to_bytes(y, 48)).digest()
         hp = int.from_bytes(md[:4], byteorder="little") >> 4
         hp &= 0xfffffff
+        print(h, hp)
 
         if h == hp:
-            return "Valid key"
+            print("Valid key")
         else:
-            return "Invalid key"
-
+            print("Invalid key")
+            
+def listkeys():
+    with open("keys.json") as json_file:
+        binkdata = json.load(json_file)
+    
+    bink_data = binkdata["Products"]
+    print(bink_data)
