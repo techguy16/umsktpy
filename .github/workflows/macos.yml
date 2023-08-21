@@ -8,6 +8,10 @@ on:
 jobs:
   build:
     runs-on: macOS-latest
+    
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
 
     steps:
     - name: Checkout Repository
@@ -36,5 +40,5 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: umsktpy-macos
+        name: umsktpy-macos-${{ matrix.platform }}
         path: dist
