@@ -9,6 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        platform: [amd64, x86, arm64, armhf]
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
@@ -36,5 +40,5 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: umsktpy-linux
+        name: umsktpy-linux-${{ matrix.platform }}
         path: dist
