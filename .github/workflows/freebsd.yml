@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        platform: [amd64, arm64]
+        platform: [amd64, x86]
         
     steps:
     - uses: actions/checkout@v3
