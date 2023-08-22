@@ -186,4 +186,18 @@ def listkeys():
         binkdata = json.load(json_file)
     
     bink_data = binkdata["Products"]
-    print(bink_data)
+
+    # Sort the product keys alphabetically
+    sorted_products = sorted(bink_data.keys())
+
+    # List all items in the "Products" section alphabetically
+    for product in sorted_products:
+        details = bink_data[product]
+        for key, value in details.items():
+            if isinstance(value, list):
+                formatted_value = ', '.join([f'"{item}"' for item in value])
+                print(f"{product}: [{formatted_value}]")
+            else:
+                print(f"{product}: {value}")
+            
+    print("\n\n** Please note: any BINK ID other than 2E is considered experimental at this time **\n")

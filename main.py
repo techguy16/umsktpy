@@ -9,6 +9,7 @@ def process_options():
     parser.add_argument("-f", "--file", metavar=nothing, type=str, help="File option")
     parser.add_argument("-V", "--verify", metavar=nothing, type=str, help="product key to validate signature")
     parser.add_argument("-v","--verbose",action="store_true",help="enable verbose output")
+    parser.add_argument("-l","--list",action="store_true",help="show which products/binks can be loaded")
 
     args = parser.parse_args()
     return args
@@ -16,7 +17,7 @@ def process_options():
 def main():
     args = process_options()
 
-    if args is not None and args.verify is None:
+    if args is not None and args.verify is None and args.list is None:
         if args.channelid is None:
             args.channelid = 640
         if args.file is None:
@@ -40,6 +41,8 @@ def main():
             args.binkid = "2E"
         print(validate_key(args.verify, args.channelid, args.binkid, args.file))
         
+    if args.list is not None:
+        listkeys()
     if args is None:
         key = generate_key()
         if len(key) == 24:
