@@ -16,8 +16,11 @@ def process_options():
 
 def main():
     args = process_options()
-
-    if args is not None and args.verify is None and args.list is None:
+    
+    if args.list is None:
+        args.list = False
+        
+    if args is not None and args.verify is None and args.list == False:
         if args.channelid is None:
             args.channelid = 640
         if args.file is None:
@@ -41,8 +44,9 @@ def main():
             args.binkid = "2E"
         print(validate_key(args.verify, args.channelid, args.binkid, args.file))
         
-    if args.list is not None:
+    if args is not None and args.list == True:
         listkeys()
+        
     if args is None:
         key = generate_key()
         if len(key) == 24:

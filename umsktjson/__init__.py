@@ -147,8 +147,6 @@ def generate_key(keysfile="keys.json", bink="2E", pid=756, verbose=False):
     else:
         key = encode_pkey(raw_pkey)
     return key
-    
-    
 
 def validate_key(pkey, pid, bink="2E", keysfile='keys.json'):
     with open(keysfile) as json_file:
