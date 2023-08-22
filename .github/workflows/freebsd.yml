@@ -24,10 +24,10 @@ jobs:
         envs: 'MYTOKEN MYTOKEN2'
         usesh: true
         prepare: |
-          pkg install -y python37 py37-pip
+          freebsd-version
 
         run: |
-          python3.11 -m pip install pyinstaller
+          python3 -m pip install pyinstaller
           pyinstaller --onefile main.py
           cp keys.json dist/keys.json
           mv dist/main dist/umsktpy
