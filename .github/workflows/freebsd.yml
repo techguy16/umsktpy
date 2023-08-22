@@ -1,0 +1,40 @@
+name: Build and Upload - FreeBSD
+
+on:
+  push:
+    branches: [ "nobridge" ]
+  pull_request:
+    branches: [ "nobridge" ]
+
+jobs:
+  build:
+    runs-on: macos-12
+
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
+        
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build & Test in FreeBSD
+      id: test
+      uses: vmactions/freebsd-vm@v0
+      with:
+        envs: 'MYTOKEN MYTOKEN2'
+        usesh: true
+        prepare: |
+          pkg install -y python311 py311-pip
+
+        run: |
+          python3.11 -m pip install pyinstaller
+          pyinstaller --onefile main.py
+          cp keys.json dist/keys.json
+          mv dist/main dist/umsktpy
+          ./dist/umsktpy
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: umsktpy-freebsd-${{ matrix.platform }}
+        path: dist/
