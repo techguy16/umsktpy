@@ -24,15 +24,15 @@ jobs:
         envs: 'MYTOKEN MYTOKEN2'
         usesh: true
         prepare: |
-          pkg install -y python3* py*-pip*
-
+          pkg install -y python3 py38-pip
+          python3 -m ensurepip
+          ln -s /usr/local/bin/pip-3.8 /usr/local/bin/pip
         run: |
-          python3 -m pip install pyinstaller
+          pip install pyinstaller
           pyinstaller --onefile main.py
           cp keys.json dist/keys.json
           mv dist/main dist/umsktpy
           ./dist/umsktpy
-
     - name: Upload build artifact
       uses: actions/upload-artifact@v3.1.2
       with:
