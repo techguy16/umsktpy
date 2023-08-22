@@ -24,11 +24,11 @@ jobs:
         envs: 'MYTOKEN MYTOKEN2'
         usesh: true
         prepare: |
-          pkg install -y python3 py38-pip
-          python3 -m ensurepip
-          ln -s /usr/local/bin/pip-3.8 /usr/local/bin/pip
+          pkg install -y python3
+          fetch https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+          python3 /tmp/get-pip.py
         run: |
-          pip install pyinstaller
+          python3 -m pip install pyinstaller
           pyinstaller --onefile main.py
           cp keys.json dist/keys.json
           mv dist/main dist/umsktpy
