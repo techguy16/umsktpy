@@ -13,6 +13,12 @@ def int_to_bytes(n, l=None):
 
     return n.to_bytes(l, byteorder="little")
 
+def int_to_bytesl(n, l=None):
+    if not l:
+        l = (n.bit_length() + 7) // 8
+
+    return n.to_bytes(l, byteorder="large")
+    
 def encode_pkey(n):
     KCHARS = "BCDFGHJKMPQRTVWXY2346789"
     out = ""
@@ -148,32 +154,66 @@ def generate_key(keysfile="keys.json", bink="2E", pid=756, verbose=False):
         key = encode_pkey(raw_pkey)
     return key
 
-def validate_key(pkey, pid, bink="2E", keysfile='keys.json'):
+def validate_key(pkey_input, pid, bink="2E", keysfile='keys.json'):
     with open(keysfile) as json_file:
         binkdata = json.load(json_file)
     
     bink_data = binkdata["BINK"][bink]
     
-    B = tuple(bink_data["g"])
-    K = tuple(bink_data["pub"])
+    key_data = {
+        "p": int(bink_data["p"]),
+        "a": int(bink_data["a"]),
+        "b": int(bink_data["b"]),
+        "B": [
+            int(bink_data["g"]["x"]),
+            int(bink_data["g"]["y"])
+        ],
+        "K": [
+            int(bink_data["pub"]["x"]),
+            int(bink_data["pub"]["y"])
+        ],
+        "order": int(bink_data["n"]),
+        "private_key": int(bink_data["priv"])
+    }
     
+    B = key_data["B"]
+    K = key_data["K"]
+    
+    def decode_pkey(k):
+        k = k.replace("-", "")
+        out = 0
+        
+        for c in k:
+            out *= 24
+            out += KCHARS.index(c)
+        
+        return out
+
+    pkey = pkey_input
     raw_pkey = decode_pkey(pkey)
 
     kpid = (raw_pkey & 0x7fffffff) >> 1
-    verify = (kpid // 1000000) == ((pid >> 1) // 1000000)
 
+    # Perform verification
+    verify = (kpid // 1000000) == ((pid) // 1000000)
+
+    # Print the values for debugging
+    print(kpid, pid)
+    
     if verify:
-        h = (raw_pkey >> 31) & 0xfffffff
-        s = (raw_pkey >> 59) & 0x7ffffffffffffff
+        h = (raw_pkey) & 0xfffffff
+        s = (raw_pkey) & 0x7ffffffffffffff
 
-        r = h * K + s * B
-        x, y = r.xy()
+        r = [(h * x) + (s * y) for x, y in zip(K, B)]
+        x, y = r[0], r[1]
+        print(x, y)
 
-        md = hashlib.sha1(int_to_bytes(kpid << 1, 4) + int_to_bytes(x, 48) + int_to_bytes(y, 48)).digest()
+        md = hashlib.sha1(int_to_bytesl(kpid << 1, 4) + int_to_bytesl(x, 48) + int_to_bytesl(y, 48)).digest()
         hp = int.from_bytes(md[:4], byteorder="little") >> 4
         hp &= 0xfffffff
-        print(h, hp)
 
+        print(h, hp)
+    
         if h == hp:
             print("Valid key")
         else:

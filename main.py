@@ -37,7 +37,7 @@ def main():
         
     if args.verify is not None:
         if args.channelid is None:
-            args.channelid = 640696969
+            args.channelid = 640_696969
         if args.file is None:
             args.file = "keys.json"
         if args.binkid is None:
