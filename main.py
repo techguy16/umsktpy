@@ -1,6 +1,6 @@
 import argparse
-from umsktjson import *
-from umsktjson.mod7 import KeyGenerator
+from umskt import *
+from umskt.mod7 import KeyGenerator
 
 nothing = ""
 def process_options():

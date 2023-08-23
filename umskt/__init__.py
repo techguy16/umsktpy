@@ -17,7 +17,7 @@ def int_to_bytesl(n, l=None):
     if not l:
         l = (n.bit_length() + 7) // 8
 
-    return n.to_bytes(l, byteorder="large")
+    return n.to_bytes(l, byteorder="little")
     
 def encode_pkey(n):
     KCHARS = "BCDFGHJKMPQRTVWXY2346789"
@@ -204,9 +204,10 @@ def validate_key(pkey_input, pid, bink="2E", keysfile='keys.json'):
         h = (raw_pkey) & 0xfffffff
         s = (raw_pkey) & 0x7ffffffffffffff
 
-        r = [(h * x) + (s * y) for x, y in zip(K, B)]
-        x, y = r[0], r[1]
-        print(x, y)
+        x, y = 0, 0
+        for i in range(len(K)):
+            x += K[i] * h
+            y += B[i] * s
 
         md = hashlib.sha1(int_to_bytesl(kpid << 1, 4) + int_to_bytesl(x, 48) + int_to_bytesl(y, 48)).digest()
         hp = int.from_bytes(md[:4], byteorder="little") >> 4
