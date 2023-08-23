@@ -24,6 +24,7 @@ jobs:
 
     - name: Install PyInstaller
       run: |
+        lscpu
         pip install pyinstaller
 
     - name: Build with PyInstaller
