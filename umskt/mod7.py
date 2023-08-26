@@ -119,3 +119,48 @@ def elevendigitkey_a():
 
     cd_key_2 = eleven_cd_keygen_first_segment() + '-' + check_seven_digit()
     return cd_key_2
+    
+def mod7_check(mod7_key, mod7_length):
+    total_sum = 0
+    for i in range(mod7_length):
+        total_sum = total_sum + int(mod7_key[i])
+
+    valid = total_sum % 7
+    if valid == 0:
+        return True
+    else:
+        return False
+
+def retail_key(key):
+    const_value = key[0:3]
+    if const_value in ['333', '444', '555', '666', '777', '888', '999']:
+        return False
+    else:
+        mod7_key = key[4:15]
+        mod7_length = len(mod7_key)
+        if mod7_check(mod7_key, mod7_length):
+            return True
+        else:
+            return False
+
+def oem_key(key):
+    const1 = key[0:3]
+    const2 = key[3:5]
+    oem_check = key[6:9]
+    mod7_key = key[10:17]
+
+    if oem_check == "OEM":
+        if 1 <= int(const1) <= 366:
+            if (95 <= int(const2) <= 99) or (0 <= int(const2) <= 2):
+                mod7_length = len(mod7_key)
+                if mod7_check(mod7_key, mod7_length):
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
+    else:
+        return False
+
