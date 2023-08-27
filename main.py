@@ -17,7 +17,8 @@ def process_options():
     mod7keys = parser.add_argument_group('mod7 keys')
     mod7keys.add_argument("-r", "--retail",action="store_true", help="win95 retail")
     mod7keys.add_argument("-o", "--oem",action="store_true",  help="win95 oem")
-    mod7keys.add_argument("-e", "--retail11",action="store_true",  help="nt4")
+    mod7keys.add_argument("-e", "--retail11",action="store_true",  help="nt4/office 97")
+    mod7keys.add_argument("-m", "--mod7verify", metavar=nothing, type=str, help="verification for mod7 keys")
 
     args = parser.parse_args()
     
@@ -62,6 +63,8 @@ def main():
         print(KeyGenerator.oemkey())
     if args.retail11:
         print(elevendigitkey_a())
+    if args.mod7verify:
+        verify_mod7(args.mod7verify)
           
     if args is None:
         key = generate_key()

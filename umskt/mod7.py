@@ -123,13 +123,15 @@ def elevendigitkey_a():
 def mod7_check(mod7_key, mod7_length):
     total_sum = 0
     for i in range(mod7_length):
-        total_sum = total_sum + int(mod7_key[i])
+        if mod7_key[i].isdigit():
+            total_sum = total_sum + int(mod7_key[i])
 
     valid = total_sum % 7
     if valid == 0:
         return True
     else:
         return False
+
 
 def retail_key(key):
     const_value = key[0:3]
@@ -163,4 +165,52 @@ def oem_key(key):
             return False
     else:
         return False
+        
+def validate_elevendigitkey(key):
+    segments = key.split('-')
+    
+    if len(segments) != 2:
+        return False
+    
+    first_segment = segments[0]
+    second_segment = segments[1]
+    
+    if len(first_segment) != 4 or not first_segment.isdigit():
+        return False
+    
+    if len(second_segment) != 7 or not second_segment.isdigit():
+        return False
+    
+    third_digit = int(first_segment[2])
+    fourth_digit = int(first_segment[3])
+    
+    if third_digit == fourth_digit:
+        return False
+    
+    last_digit_first_segment = int(first_segment[3])
+    overflow_value = (third_digit + 1) % 10
+    overflow_value_alt = (third_digit + 2) % 10
+    
+    if overflow_value != last_digit_first_segment and overflow_value_alt != last_digit_first_segment:
+        return False
+    
+    return True
+
+    
+def verify_mod7(key):
+    print(key)
+    oem_check = key[6:9]
+    
+    if retail_key(key) == True and 'OEM' not in key and 'oem' not in key and key[3] == '-':
+        print("Valid Retail Key")
+    if oem_key(key) == True:
+        print("Valid OEM Key")
+    if validate_elevendigitkey(key) == True:
+        print("Valid NT4/Office 97 key")
+    if oem_key(key) == False and retail_key(key) == False:
+        print("Invalid key")
+    if validate_elevendigitkey(key) == False and oem_key(key) == False and retail_key(key) == False and validate_elevendigitkey(key) == "":
+        print("Invalid key")
+    else:
+        print("Invalid key")
 
