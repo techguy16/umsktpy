@@ -199,18 +199,18 @@ def validate_elevendigitkey(key):
     
 def verify_mod7(key):
     print(key)
+    v = 0
     oem_check = key[6:9]
     
     if retail_key(key) == True and 'OEM' not in key and 'oem' not in key and key[3] == '-':
         print("Valid Retail Key")
+        v = 1
     if oem_key(key) == True:
         print("Valid OEM Key")
+        v = 1
     if validate_elevendigitkey(key) == True:
         print("Valid NT4/Office 97 key")
-    if oem_key(key) == False and retail_key(key) == False:
-        print("Invalid key")
-    if validate_elevendigitkey(key) == False and oem_key(key) == False and retail_key(key) == False and validate_elevendigitkey(key) == "":
-        print("Invalid key")
-    else:
+        v = 1
+    if v == 0:
         print("Invalid key")
 
