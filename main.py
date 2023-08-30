@@ -27,18 +27,17 @@ def process_options():
 def main():
     args = process_options()
     # print(args)
-
+    
     if args.list == True:
         listkeys()
         sys.exit()
-    if args.file is None:
-        args.file = 'keys.json'
-    if args.binkid is None:
-        args.binkid = "2E"
-    if args.channelid is None:
-        args.channelid = 640
+    
     if not args.verbose:
         args.verbose = False
+        
+    if args.binkid is not None:
+        binks = args.binkid
+        args.binkid = binks.upper()
 
     if args.retail:
         print(KeyGenerator.retailkey())
@@ -50,10 +49,21 @@ def main():
         verify_mod7(args.mod7verify)
 
     if args.binkid or args.channelid or args.file or args.verbose and args.retail == False and args.oem == False and args.retail11 == False and args.mod7verify == False and args.list == False:
+        if args.file is None:
+            args.file = 'keys.json'
+        if args.binkid is None:
+            args.binkid = "2E"
+        if args.channelid is None:
+            args.channelid = 640
+        
         if args.verbose:
             key = generate_key(keysfile=args.file, bink=args.binkid, pid=args.channelid, verbose=True)
+            if len(key) < 25:
+                key = generate_key(keysfile=args.file, bink=args.binkid, pid=args.channelid, verbose=True)
         else:
             key = generate_key(keysfile=args.file, bink=args.binkid, pid=args.channelid)
+            if len(key) < 25:
+                key = generate_key(keysfile=args.file, bink=args.binkid, pid=args.channelid)
         print(key)
 
     if args.verify:
@@ -61,7 +71,7 @@ def main():
 
     if not any(vars(args).values()) and not args.list:
         key = generate_key()
-        if len(key) == 24:
+        if len(key) < 25:
             key = generate_key()
         print(key)
 
