@@ -2,6 +2,7 @@ import hashlib
 import random
 import secrets
 import json
+import sys
 
 KCHARS = "BCDFGHJKMPQRTVWXY2346789"
 
@@ -69,10 +70,10 @@ def scalar_mult(k, P, p, a):
         P = add_points(P, P, p, a)
     return R
 
-def generate_key(keysfile="keys.json", bink="2E", pid=756, verbose=False):
+def generate_key(keysfile="keys.json", bink="2E", pid=756, verbose=False) -> str:
     if verbose == True:
         print("Loading internal keys file")
-        
+
     try:
         with open(keysfile) as json_file:
             binkdata = json.load(json_file)
@@ -80,11 +81,14 @@ def generate_key(keysfile="keys.json", bink="2E", pid=756, verbose=False):
                 print("Loaded internal keys file successfully")
     except FileNotFoundError:
         print("The specified file was not found.")
+        sys.exit()
     except json.JSONDecodeError:
         print("There was an error decoding the JSON content.")
+        sys.exit()
     except Exception as e:
         print("An unexpected error occurred:", e)
-    
+        sys.exit()
+
     bink_data = binkdata["BINK"][bink]
     if verbose:
         print("-----------------------------------------------------------")
@@ -147,7 +151,7 @@ def generate_key(keysfile="keys.json", bink="2E", pid=756, verbose=False):
 
         if raw_pkey >> 96 < 0x40000:
             break
-    
+        
     if verbose:
         key = encode_pkey(raw_pkey) + "\n\nSuccess count:1/1"
     else:

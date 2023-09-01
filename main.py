@@ -6,6 +6,7 @@ from umskt.mod7 import *
 
 def process_options():
     parser = argparse.ArgumentParser(description="usage: umsktpy ", usage=argparse.SUPPRESS)
+    
     binkkeys = parser.add_argument_group('BINK keys')
     binkkeys.add_argument("-b", "--binkid", metavar='', type=str, help="Bink ID option")
     binkkeys.add_argument("-c", "--channelid", metavar='', type=int, help="Channel ID option")
@@ -27,8 +28,7 @@ def process_options():
 def main():
     args = process_options()
     # print(args)
-    
-    if args.list == True:
+    if args.list is True:
         listkeys()
         sys.exit()
     
@@ -48,7 +48,8 @@ def main():
     if args.mod7verify:
         verify_mod7(args.mod7verify)
 
-    if args.binkid or args.channelid or args.file or args.verbose and args.retail == False and args.oem == False and args.retail11 == False and args.mod7verify == False and args.list == False:
+    if args.binkid or args.channelid or args.file and \
+    args.retail == False and args.oem == False and args.retail11 == False and args.mod7verify == False and args.list == False:
         if args.file is None:
             args.file = 'keys.json'
         if args.binkid is None:
@@ -64,10 +65,8 @@ def main():
             key = generate_key(keysfile=args.file, bink=args.binkid, pid=args.channelid)
             if len(key) < 25:
                 key = generate_key(keysfile=args.file, bink=args.binkid, pid=args.channelid)
-        print(key)
 
-    if args.verify:
-        print(validate_key(args.verify))
+        print(key)
 
     if not any(vars(args).values()) and not args.list:
         key = generate_key()
