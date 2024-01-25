@@ -1,5 +1,4 @@
 import hashlib
-import random
 import secrets
 import json
 import sys
@@ -7,7 +6,7 @@ import sys
 KCHARS = "BCDFGHJKMPQRTVWXY2346789"
 
 def int_to_bytes(n, l=None):
-    n = int(n)
+    n = n
 
     if not l:
         l = (n.bit_length() + 7) // 8
